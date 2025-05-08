@@ -1,0 +1,50 @@
+name: Build and Deply Module
+on: 
+  push:
+    branches:
+       - 'main'
+
+jobs:
+  lint-with-PSScriptAnalyzer:
+    name: Install and run PSScriptAnalyzer
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install PSScriptAnalyzer module
+      shell: pwsh
+      run: |
+            Set-PSRepository PSGallery -InstallationPolicy Trusted
+            Install-Module PSScriptAnalyzer -ErrorAction Stop
+    - name: Lint with PSScriptAnalyzer
+      shell: pwsh
+      run: |
+            Invoke-ScriptAnalyzer -Path .\AzSentinelTI\Public\*.ps1 -Recurse -Outvariable issues
+            $errors   = $issues.Where({$_.Severity -eq 'Error'})
+            $warnings = $issues.Where({$_.Severity -eq 'Warning'})
+            if ($errors) {
+                Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
+            } else {
+                Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
+            }
+  build-and-deploy-module:
+    name: Build and Deply module
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Push to psgallery
+      shell: pwsh
+      env:
+         psgkey: ${{ secrets.PSGKEY }}
+      run: |
+           Install-Module Az.Accounts,Az.OperationalInsights -AllowClobber -Force
+           Try { 
+           $params = @{
+            Path        = ('.\AzSentinelTI' -f $PSScriptRoot )
+            NuGetApiKey = "$env:psgkey"
+            ErrorAction = 'Stop'
+            }
+           Publish-Module @params
+           Write-Output -InputObject ('AzSentinelTI PowerShell Module version published to the PowerShell Gallery!')
+           } Catch {
+                    throw $_
+                    }

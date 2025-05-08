@@ -79,12 +79,14 @@ All operations are logged to a CSV file in the execution directory:
 
 ## TODO
 
+- [X] Publish the module to PSGallery
 - [ ] Add support for multiple TI sources in single operation
 - [ ] Test the Days Old parameter
 - [ ] Implement parallel processing for faster bulk deletions
 - [ ] Add support for indicator type filtering
 - [ ] Add progress bar for bulk operations
 - [ ] Implement retry logic for failed deletions
+
 
 ## Author
 
