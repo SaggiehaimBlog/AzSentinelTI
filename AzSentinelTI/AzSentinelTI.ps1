@@ -1,6 +1,6 @@
 @{
     # Version number of this module
-    ModuleVersion = '1.0.1'
+    ModuleVersion = '1.0.2'
 
     # ID used to generate the module manifest
     GUID = 'd0e1f7a2-3b4c-4f5d-8a6b-7c8d9e0f1a2b'
